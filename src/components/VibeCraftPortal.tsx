@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy, ArrowUpRight, DollarSign, MessageSquare, Clock } from "lucide-react";
+import { 
+  Check, 
+  Copy, 
+  ArrowUpRight, 
+  DollarSign, 
+  MessageSquare, 
+  Clock, 
+  ExternalLink, 
+  Coins, 
+  ShieldAlert, 
+  Info,
+  CheckCircle2
+} from "lucide-react";
 
 interface VibeCraftPortalProps {
   onOpenScorer?: () => void;
@@ -11,10 +23,20 @@ export default function VibeCraftPortal({ onOpenScorer }: VibeCraftPortalProps) 
   const [filter, setFilter] = useState<"all" | "build" | "launch">("all");
   const [copiedMemo, setCopiedMemo] = useState(false);
   const [copiedApplication, setCopiedApplication] = useState(false);
+  const [copiedYaml, setCopiedYaml] = useState(false);
 
-  // Customizable payment and channel settings
-  const [paymentAmount, setPaymentAmount] = useState("$250 USDC");
-  const [recruitmentChannel, setRecruitmentChannel] = useState("#vibecraft-trials (Discord / Farcaster)");
+  // Executive locked parameters
+  const [treasuryMode, setTreasuryMode] = useState<"grant" | "sweat">("grant");
+
+  const trialParams = {
+    usdc_amount: treasuryMode === "grant" ? 250 : 0,
+    token_grant: treasuryMode === "grant" 
+      ? "500 $VIBE (12-mo linear vest, 3-mo cliff)" 
+      : "1,000 $VIBE (Founding equity) + 5% Protocol Revenue Share",
+    expected_commitment: "4 hours",
+    submissions: "https://github.com/Abdulla090/vibecheck/discussions",
+    community: "discord.gg/vibecraft (#vibecraft-trials)",
+  };
 
   const memoText = `VIBECRAFT DAY 1 MEMO
 
@@ -30,21 +52,34 @@ Today we will:
 Before leaving: record blockers, decisions, owners, and the first task for tomorrow.`;
 
   const applicationTemplate = `NAME / HANDLE:
-THE ROLE I CAN OWN:
+THE ROLE I CAN OWN (Squad A or B):
 BEST THING I HAVE SHIPPED: [link]
 MY 30-DAY AVAILABILITY:
-TRIAL TASK LINK: [link]
-TARGET PAYMENT: ${paymentAmount}
-RECRUITMENT CHANNEL: ${recruitmentChannel}`;
+TRIAL TASK REPO / WALKTHROUGH LINK: [link]
+COMPENSATION TERMS: ${trialParams.usdc_amount > 0 ? `$${trialParams.usdc_amount} USDC + ` : ""}${trialParams.token_grant}
+SUBMISSION DESTINATION: ${trialParams.submissions}
+COMMUNITY CHANNEL: ${trialParams.community}`;
 
-  const copyText = (text: string, type: "memo" | "app") => {
+  const executiveYaml = `trial_bounty:
+  usdc_amount: ${trialParams.usdc_amount}
+  token_grant: "${trialParams.token_grant}"
+  expected_commitment: "${trialParams.expected_commitment}"
+channels:
+  submissions: "github.com/Abdulla090/vibecheck/discussions"
+  community: "${trialParams.community}"
+treasury_status: "${treasuryMode === 'grant' ? 'DAO Grant Sponsored / Retroactive Multisig' : 'Bootstrapped Founder (0 Cash / Pure Sweat Equity)'}"`;
+
+  const copyText = (text: string, type: "memo" | "app" | "yaml") => {
     navigator.clipboard.writeText(text);
     if (type === "memo") {
       setCopiedMemo(true);
       setTimeout(() => setCopiedMemo(false), 2000);
-    } else {
+    } else if (type === "app") {
       setCopiedApplication(true);
       setTimeout(() => setCopiedApplication(false), 2000);
+    } else {
+      setCopiedYaml(true);
+      setTimeout(() => setCopiedYaml(false), 2000);
     }
   };
 
@@ -119,6 +154,96 @@ RECRUITMENT CHANNEL: ${recruitmentChannel}`;
           <span className="block mt-2 text-xs font-mono font-medium uppercase tracking-wider text-[#b0b3aa]">
             Product to launch
           </span>
+        </div>
+      </div>
+
+      {/* Locked Executive Parameter Banner */}
+      <div className="p-6 bg-[#141512] border-2 border-[#bce83e] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2e3029] pb-4">
+          <div className="flex items-center gap-2 text-sm font-mono font-bold text-[#bce83e]">
+            <CheckCircle2 className="w-4 h-4 text-[#bce83e]" />
+            <span>EXECUTIVE COMPENSATION &amp; CHANNEL PARAMETERS LOCKED</span>
+          </div>
+
+          {/* Model Switcher: Grant Funded vs Bootstrapped Sweat Equity */}
+          <div className="flex items-center gap-1 bg-[#0b0c0a] p-1 border border-[#2e3029] rounded">
+            <button
+              type="button"
+              onClick={() => setTreasuryMode("grant")}
+              className={`px-2.5 py-1 text-[11px] font-mono font-semibold transition-all ${
+                treasuryMode === "grant"
+                  ? "bg-[#bce83e] text-[#101408] font-bold"
+                  : "text-[#b0b3aa] hover:text-[#f2f3ed]"
+              }`}
+            >
+              $250 USDC + 500 $VIBE (Grant / Safe Limit)
+            </button>
+            <button
+              type="button"
+              onClick={() => setTreasuryMode("sweat")}
+              className={`px-2.5 py-1 text-[11px] font-mono font-semibold transition-all ${
+                treasuryMode === "sweat"
+                  ? "bg-[#ff7055] text-white font-bold"
+                  : "text-[#b0b3aa] hover:text-[#f2f3ed]"
+              }`}
+            >
+              Founding Sweat Equity ($0 Cash / 1,000 $VIBE)
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
+          <div className="space-y-1">
+            <span className="text-[#b0b3aa] uppercase text-[10px] block">Trial Bounty</span>
+            <div className="text-[#f2f3ed] font-bold text-sm flex items-center gap-1.5">
+              <DollarSign className="w-4 h-4 text-[#bce83e]" />
+              {trialParams.usdc_amount > 0 ? `$${trialParams.usdc_amount} USDC + ` : "$0 Cash + "}
+              <span className="text-[#bce83e]">{treasuryMode === "grant" ? "500 $VIBE" : "1,000 $VIBE"}</span>
+            </div>
+            <p className="text-[11px] text-[#b0b3aa]">
+              {treasuryMode === "grant" 
+                ? "12-mo linear vest, 3-mo cliff ($500/day safe-to-fail sandbox limit)" 
+                : "Zero cash required. Full founding stakeholder equity + revenue share."}
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[#b0b3aa] uppercase text-[10px] block">Primary Submissions</span>
+            <a
+              href="https://github.com/Abdulla090/vibecheck/discussions"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#38bdf8] font-bold text-sm flex items-center gap-1 hover:underline"
+            >
+              Abdulla090/vibecheck/discussions
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+            <p className="text-[11px] text-[#b0b3aa]">Publicly auditable code reviews &amp; prompt logs from Day 1.</p>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[#b0b3aa] uppercase text-[10px] block">Community Hub</span>
+            <div className="text-[#f2f3ed] font-bold text-sm flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-[#ff7055]" />
+              discord.gg/vibecraft (#vibecraft-trials)
+            </div>
+            <p className="text-[11px] text-[#b0b3aa]">Daily squad standups, bot announcements &amp; builder support.</p>
+          </div>
+        </div>
+
+        {/* Copy YAML snippet */}
+        <div className="pt-2 flex items-center justify-between border-t border-[#2e3029]">
+          <span className="text-[10px] font-mono text-[#b0b3aa]">
+            Rule 06 Transparency: All commitments backed by audited multisig or founding equity grant.
+          </span>
+          <button
+            type="button"
+            onClick={() => copyText(executiveYaml, "yaml")}
+            className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#0b0c0a] text-[#bce83e] border border-[#2e3029] text-[11px] font-mono hover:border-[#bce83e] transition-all"
+          >
+            {copiedYaml ? <Check className="w-3 h-3 text-[#bce83e]" /> : <Copy className="w-3 h-3" />}
+            {copiedYaml ? "Copied YAML" : "Copy YAML Config"}
+          </button>
         </div>
       </div>
 
@@ -408,35 +533,6 @@ RECRUITMENT CHANNEL: ${recruitmentChannel}`;
           </div>
         </div>
 
-        {/* Trial Parameter Lock-In Bar */}
-        <div className="p-4 bg-[#141512] border-2 border-[#bce83e] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-1.5 text-[#bce83e]">
-              <DollarSign className="w-4 h-4" />
-              <span>Trial Compensation:</span>
-              <input
-                type="text"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                className="bg-[#0b0c0a] border border-[#2e3029] px-2 py-1 text-white font-bold w-28 focus:outline-none focus:border-[#bce83e]"
-              />
-            </div>
-            <div className="flex items-center gap-1.5 text-zinc-300">
-              <MessageSquare className="w-4 h-4 text-[#38bdf8]" />
-              <span>Recruitment Channel:</span>
-              <input
-                type="text"
-                value={recruitmentChannel}
-                onChange={(e) => setRecruitmentChannel(e.target.value)}
-                className="bg-[#0b0c0a] border border-[#2e3029] px-2 py-1 text-white w-64 focus:outline-none focus:border-[#38bdf8]"
-              />
-            </div>
-          </div>
-          <span className="text-[11px] text-[#b0b3aa] uppercase tracking-wider">
-            ✓ Parameters Locked
-          </span>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Brief Card */}
           <article className="lg:col-span-7 p-6 sm:p-10 bg-[#0b0c0a] border-2 border-[#2e3029] text-[#e9ecdf] space-y-6 flex flex-col justify-between">
@@ -465,8 +561,9 @@ RECRUITMENT CHANNEL: ${recruitmentChannel}`;
             </div>
 
             <div className="p-4 border border-[#55584f] bg-[#141612] text-xs font-mono leading-relaxed text-[#d9dcd2]">
-              DELIVER → live link or runnable repo<br />
-              + short demo walkthrough<br />
+              DELIVER → Post to <a href="https://github.com/Abdulla090/vibecheck/discussions" target="_blank" rel="noreferrer" className="text-[#38bdf8] underline">GitHub Discussions</a><br />
+              + Live demo link or runnable repo<br />
+              + 60–90 second demo walkthrough<br />
               + 5 sentences on trade-offs
             </div>
           </article>
@@ -505,7 +602,10 @@ RECRUITMENT CHANNEL: ${recruitmentChannel}`;
               </div>
             </div>
             <p className="text-xs text-[#b0b3aa] leading-relaxed pt-2">
-              No points for framework choice or polished pitch decks. Micro-task payouts ({paymentAmount}) are disbursed upon verified submission in {recruitmentChannel}.
+              No points for framework choice or pitch decks. Submissions are reviewed in public on{" "}
+              <a href="https://github.com/Abdulla090/vibecheck/discussions" target="_blank" rel="noreferrer" className="text-[#38bdf8] underline">
+                GitHub Discussions
+              </a>. Payouts ({trialParams.usdc_amount > 0 ? `$${trialParams.usdc_amount} USDC + ` : ""}{trialParams.token_grant}) are confirmed within 24 hours of demo approval.
             </p>
           </aside>
         </div>
@@ -654,11 +754,30 @@ RECRUITMENT CHANNEL: ${recruitmentChannel}`;
               Ready to build in public?
             </h2>
             <p className="text-sm sm:text-base leading-relaxed text-[#252b14]">
-              Copy the application template below, fill it with your real links and trade-off summary, and submit to <strong className="font-bold underline">{recruitmentChannel}</strong>.
+              Copy the application template below, fill it with your real links and trade-off summary, and submit to{" "}
+              <a 
+                href={trialParams.submissions} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="font-bold underline decoration-[#101408] hover:text-black"
+              >
+                GitHub Discussions
+              </a>{" "}
+              or coordinate in <strong className="font-bold">{trialParams.community}</strong>.
             </p>
-            <div className="pt-4 flex items-center gap-3 text-xs font-mono font-bold">
-              <span className="px-2.5 py-1 bg-[#101408] text-[#bce83e]">Trial Bounty: {paymentAmount}</span>
-              <span>Deadline: Day 01 Kickoff</span>
+            <div className="pt-4 flex flex-wrap items-center gap-3 text-xs font-mono font-bold">
+              <span className="px-2.5 py-1 bg-[#101408] text-[#bce83e]">
+                Trial Bounty: {trialParams.usdc_amount > 0 ? `$${trialParams.usdc_amount} USDC + ` : "$0 Cash + "}
+                {treasuryMode === "grant" ? "500 $VIBE" : "1,000 $VIBE"}
+              </span>
+              <a
+                href={trialParams.submissions}
+                target="_blank"
+                rel="noreferrer"
+                className="px-2.5 py-1 bg-white text-black border border-black hover:bg-black hover:text-white transition-all inline-flex items-center gap-1"
+              >
+                Go to GitHub Discussions <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
 

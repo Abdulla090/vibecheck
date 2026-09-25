@@ -1,218 +1,139 @@
 "use client";
 
-import React, { useState } from "react";
-import PromptScorer from "@/components/PromptScorer";
-import VibeCraftPortal from "@/components/VibeCraftPortal";
-import { 
-  GitBranch, 
-  Globe, 
-  Terminal, 
-  CheckCircle2, 
-  Server, 
-  Zap, 
-  Layers, 
-  Users, 
-  ShieldCheck, 
-  ExternalLink 
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ClinicConfig, Language } from "@/types/clinic";
+import { DEFAULT_CLINIC_CONFIG } from "@/data/clinicData";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import ProcedureCatalog from "@/components/ProcedureCatalog";
+import TrustAndPaymentBadges from "@/components/TrustAndPaymentBadges";
+import WhatsAppBookingEngine from "@/components/WhatsAppBookingEngine";
+import DoctorCredentials from "@/components/DoctorCredentials";
+import FaqSection from "@/components/FaqSection";
+import Footer from "@/components/Footer";
+import FloatingMobileBar from "@/components/FloatingMobileBar";
+import DemoSettingsDrawer from "@/components/DemoSettingsDrawer";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"scorer" | "portal" | "pipeline">("scorer");
+  const [lang, setLang] = useState<Language>("ckb");
+  const [config, setConfig] = useState<ClinicConfig>(DEFAULT_CLINIC_CONFIG);
+  const [selectedProcedureId, setSelectedProcedureId] = useState<string>("hollywood-smile");
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Load persisted demo configuration and language if available
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const savedLang = localStorage.getItem("vip_clinic_lang") as Language | null;
+      if (savedLang === "en" || savedLang === "ckb") {
+        setLang(savedLang);
+      }
+
+      const savedConfig = localStorage.getItem("vip_clinic_config");
+      if (savedConfig) {
+        setConfig(JSON.parse(savedConfig));
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, []);
+
+  // Update HTML direction and language
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dir = lang === "ckb" ? "rtl" : "ltr";
+      document.documentElement.lang = lang;
+    }
+  }, [lang]);
+
+  const handleToggleLang = () => {
+    const nextLang: Language = lang === "ckb" ? "en" : "ckb";
+    setLang(nextLang);
+    try {
+      localStorage.setItem("vip_clinic_lang", nextLang);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleUpdateConfig = (newConfig: ClinicConfig) => {
+    setConfig(newConfig);
+    try {
+      localStorage.setItem("vip_clinic_config", JSON.stringify(newConfig));
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleSelectProcedure = (procedureId: string) => {
+    setSelectedProcedureId(procedureId);
+    const bookEl = document.getElementById("book");
+    if (bookEl) {
+      bookEl.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#10110f] text-[#f2f3ed]">
-      {/* Top Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-[#2e3029] bg-[#10110f]/95 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          {/* Logo & Cohort status */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-[#bce83e] text-[#101408] font-mono font-extrabold flex items-center justify-center text-sm shadow-[2px_2px_0_#f2f3ed]">
-              V
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base tracking-tight font-mono text-[#f2f3ed]">
-                VibeCheck
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-[#141512] border border-[#2e3029] text-[#bce83e]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#bce83e] animate-pulse" />
-                Founding Cohort · 10 Seats
-              </span>
-            </div>
-          </div>
+    <div className={`min-h-screen bg-[#0B0F17] text-[#F8FAFC] selection:bg-[#10B981] selection:text-[#0B0F17]`}>
+      {/* 1. Header with branding & switchers */}
+      <Header
+        lang={lang}
+        onToggleLang={handleToggleLang}
+        config={config}
+        onOpenDemo={() => setIsDemoOpen(true)}
+      />
 
-          {/* Navigation Mode Switcher */}
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab("scorer")}
-              className={`px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
-                activeTab === "scorer"
-                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
-                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
-              }`}
-            >
-              PromptScorer
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("portal")}
-              className={`px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
-                activeTab === "portal"
-                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
-                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
-              }`}
-            >
-              DAO Portal
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("pipeline")}
-              className={`hidden md:inline-flex px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
-                activeTab === "pipeline"
-                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
-                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
-              }`}
-            >
-              CI/CD
-            </button>
-          </nav>
-        </div>
-      </header>
+      {/* 2. Hero with stats & primary CTAs */}
+      <Hero lang={lang} config={config} />
 
-      {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        {/* TAB 1: PromptScorer (Interactive Evaluation Tool) */}
-        {activeTab === "scorer" && (
-          <div className="space-y-12">
-            <PromptScorer />
+      {/* 3. Interactive Before & After Image Comparison Slider */}
+      <BeforeAfterSlider lang={lang} />
 
-            {/* Quick Banner to DAO Portal */}
-            <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h4 className="font-bold text-sm text-[#f2f3ed] font-mono">
-                  Ready to test your prompt in the 30-Day Sprint?
-                </h4>
-                <p className="text-xs text-[#b0b3aa] font-mono mt-0.5">
-                  Squad A (Product) and Squad B (Launch) are now accepting 4-hour micro-task submissions.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab("portal")}
-                className="px-4 py-2 bg-[#f2f3ed] text-[#10110f] border border-[#f2f3ed] text-xs font-mono font-bold uppercase tracking-wider hover:bg-[#bce83e] transition-all"
-              >
-                View 30-Day Launch Roadmap →
-              </button>
-            </div>
-          </div>
-        )}
+      {/* 4. VIP Procedure Catalog with transparent tiers & Iraqi pricing */}
+      <ProcedureCatalog
+        lang={lang}
+        config={config}
+        onSelectProcedure={handleSelectProcedure}
+      />
 
-        {/* TAB 2: VibeCraft DAO Launch Portal */}
-        {activeTab === "portal" && (
-          <VibeCraftPortal onOpenScorer={() => setActiveTab("scorer")} />
-        )}
+      {/* 5. Trust & Local Iraqi Payment Badges (FIB, FastPay, Cash, German/Swiss) */}
+      <TrustAndPaymentBadges lang={lang} />
 
-        {/* TAB 3: CI/CD Pipeline Dashboard */}
-        {activeTab === "pipeline" && (
-          <div className="space-y-8">
-            <div className="border-b border-[#2e3029] pb-6">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-[#f2f3ed]">
-                Automated CI/CD Pipeline
-              </h2>
-              <p className="text-xs sm:text-sm text-[#b0b3aa] font-mono mt-1">
-                Continuous integration connected to GitHub &amp; Vercel edge deployment infrastructure
-              </p>
-            </div>
+      {/* 6. 1-Click WhatsApp VIP Booking Engine */}
+      <WhatsAppBookingEngine
+        lang={lang}
+        config={config}
+        selectedProcedureId={selectedProcedureId}
+        onProcedureChange={setSelectedProcedureId}
+      />
 
-            {/* Pipeline Status Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
-                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Git Provider</span>
-                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
-                  <GitBranch className="w-4 h-4 text-[#bce83e]" />
-                  Abdulla090/vibecheck
-                </h3>
-                <p className="text-xs text-[#b0b3aa] font-mono">
-                  Tracked branch: <code className="text-[#f2f3ed]">main</code>
-                </p>
-                <div className="pt-2">
-                  <a
-                    href="https://github.com/Abdulla090/vibecheck"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-mono text-[#38bdf8] hover:underline"
-                  >
-                    Open GitHub Repo <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
+      {/* 7. Doctor credentials, facility amenities & patient testimonials */}
+      <DoctorCredentials lang={lang} config={config} />
 
-              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
-                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Edge Hosting</span>
-                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-[#38bdf8]" />
-                  Vercel Edge Network
-                </h3>
-                <p className="text-xs text-[#b0b3aa] font-mono">
-                  Framework: Next.js 15 App Router
-                </p>
-                <div className="pt-2">
-                  <a
-                    href="https://vibecheck-gamma-nine.vercel.app"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-mono text-[#bce83e] hover:underline"
-                  >
-                    Open Live Deployment <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
+      {/* 8. Frequently Asked Questions (FIB installments, pain-free anesthesia) */}
+      <FaqSection lang={lang} />
 
-              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
-                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Squad Dispatch</span>
-                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#ff7055]" />
-                  Auto-deploy on Push
-                </h3>
-                <p className="text-xs text-[#b0b3aa] font-mono">
-                  Squad Alpha &amp; Squad Beta pull requests build instantly on merge.
-                </p>
-                <div className="pt-2 text-xs font-mono text-[#bce83e] flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  CI/CD Active
-                </div>
-              </div>
-            </div>
+      {/* 9. Comprehensive Footer */}
+      <Footer lang={lang} config={config} />
 
-            {/* Terminal Log Preview */}
-            <div className="p-6 bg-[#0b0c0a] border-2 border-[#2e3029] space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between text-[#b0b3aa] border-b border-[#2e3029] pb-3">
-                <span className="flex items-center gap-2 text-[#f2f3ed]">
-                  <Terminal className="w-4 h-4 text-[#bce83e]" />
-                  Latest Verification Log
-                </span>
-                <span className="text-emerald-400">READY</span>
-              </div>
-              <pre className="text-[#e9ecdf] leading-relaxed overflow-x-auto">
-{`▲ Next.js 15.5.26 production build
-✓ Compiled successfully in 5.4s
-✓ Prerendered static pages (4/4)
-✓ Edge distribution: Washington, D.C., USA (iad1)
-✓ Production alias: https://vibecheck-gamma-nine.vercel.app
-✓ Attestation anchor: Base L2 (8453)`}
-              </pre>
-            </div>
-          </div>
-        )}
-      </main>
+      {/* 10. Sticky Mobile Floating Quick Action Bar */}
+      <FloatingMobileBar
+        lang={lang}
+        config={config}
+        onToggleLang={handleToggleLang}
+        onOpenDemo={() => setIsDemoOpen(true)}
+      />
 
-      {/* Footer */}
-      <footer className="border-t border-[#2e3029] py-8 mt-16 bg-[#0b0c0a]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#b0b3aa]">
-          <div>VibeCheck · Launch cycle 01 · Powered by Muse Spark &amp; META Muse</div>
-          <div>Build small. Test early. Ship the proof.</div>
-        </div>
-      </footer>
+      {/* 11. Agency Pitch Mode & Personalization Drawer */}
+      <DemoSettingsDrawer
+        isOpen={isDemoOpen}
+        onClose={() => setIsDemoOpen(false)}
+        config={config}
+        onUpdateConfig={handleUpdateConfig}
+        lang={lang}
+      />
     </div>
   );
 }

@@ -3,17 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --bg: #10110f;
-  --surface: #191a17;
-  --ink: #f2f3ed;
-  --muted: #b0b3aa;
-  --line: #2e3029;
-  --line-strong: #f2f3ed;
-  --acid: #bce83e;
-  --acid-ink: #101408;
-  --signal: #ff7055;
-  --code: #0b0c0a;
-  --code-ink: #e9ecdf;
+  --bg-obsidian: #0B0F17;
+  --surface-card: #121826;
+  --surface-card-hover: #161F33;
+  --emerald-surgical: #10B981;
+  --champagne-gold: #D4AF37;
+  --hairline-border: rgba(255, 255, 255, 0.08);
 }
 
 @layer base {
@@ -22,12 +17,69 @@
   }
   html {
     scroll-behavior: smooth;
+    background-color: #0B0F17;
+    color: #F8FAFC;
   }
+  
+  html[dir="rtl"] body {
+    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+  }
+
+  html[dir="ltr"] body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
   body {
-    background-color: var(--bg);
-    color: var(--ink);
-    font-family: "Manrope", sans-serif;
+    background-color: #0B0F17;
+    color: #F8FAFC;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
+
+  /* Custom subtle dark scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0B0F17;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(16, 185, 129, 0.5);
+  }
+}
+
+/* Glassmorphism & hairline borders */
+.hairline-card {
+  background: #121826;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.hairline-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.hairline-card-gold:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.glass-nav {
+  background: rgba(11, 15, 23, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Touch slider optimization */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }

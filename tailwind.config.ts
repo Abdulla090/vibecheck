@@ -9,23 +9,39 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Manrope", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        mono: ['"IBM Plex Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
+        sans: ["Outfit", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        kurdish: ["Vazirmatn", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
-        bg: "#10110f",
-        surface: "#191a17",
-        line: "#2e3029",
-        "line-strong": "#f2f3ed",
-        acid: {
-          DEFAULT: "#bce83e",
-          ink: "#101408",
+        obsidian: {
+          950: "#070A0F",
+          900: "#0B0F17",
+          850: "#0E1420",
+          800: "#121826",
+          750: "#161F33",
+          700: "#1E293B",
+          600: "#334155",
         },
-        signal: "#ff7055",
-        code: {
-          DEFAULT: "#0b0c0a",
-          ink: "#e9ecdf",
+        emerald: {
+          surgical: "#10B981",
+          bright: "#34D399",
+          deep: "#047857",
         },
+        champagne: {
+          300: "#FDF6E2",
+          400: "#F5E6C8",
+          500: "#E6C280",
+          600: "#D4AF37",
+          700: "#B89327",
+        },
+      },
+      boxShadow: {
+        glow: "0 0 35px -5px rgba(16, 185, 129, 0.22)",
+        gold: "0 0 35px -5px rgba(212, 175, 55, 0.18)",
+        card: "0 10px 30px -10px rgba(0, 0, 0, 0.5)",
+      },
+      borderWidth: {
+        hairline: "1px",
       },
     },
   },

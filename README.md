@@ -38,6 +38,15 @@ Live Production Demo: [https://vibecheck-gamma-nine.vercel.app](https://vibechec
    - Quick presets for Gulan St (Erbil), Salim St (Sulaymaniyah), and Empire World.
    - Included $700 close pitch strategy script for closing $350 upfront deposits in 15 minutes.
 
+8. **VIP Clinic & Pharmacy Management CRM (`/crm`)**:
+   - **Executive KPI Dashboard**: Live patient pipeline value, active consultations, today's chair queue count, low-stock alerts, and dual currency ($ USD & IQD) daily revenue tracking.
+   - **Patient & Customer Pipeline (Lead Management)**: 5-stage Kanban flow (New Leads, Consultation Booked, In Treatment, Completed, Post-Op Follow-up) with 1-click stage advancement, search, VIP tier filtering, and new lead creation.
+   - **Pharmacy & Surgical Inventory Tracker**: Comprehensive SKU control with stock level monitoring, minimum safety thresholds, batch numbers, automated expiry tracking (<90-day alert), quick in-line count adjustments, and interactive prescription dispensing.
+   - **1-Click WhatsApp Supplier Restock PO**: Direct 1-tap WhatsApp purchase order dispatcher to medical suppliers (Straumann, Ivoclar, Allergan, GSK, Septodont) when stock falls below safety minimums.
+   - **Daily Appointment Scheduler & Clinical Queue**: Real-time doctor & chair queue with room allocation, status tracking (Waiting, In Chair, Completed), and 1-tap WhatsApp "Your VIP Suite is Ready" alerts.
+   - **Digital Prescriptions & Clinical Invoices**: Automated cryptographic security hashes, bilingual dosage/intake instructions, dual currency breakdown, print/PDF layout, and instant 1-tap WhatsApp dispatch to patients.
+   - **Branch Switcher & Bilingual Toggle**: Real-time switching between Erbil (Gulan St), Sulaymaniyah (Salim St), and Erbil (Empire World) with Sorani Kurdish RTL and English LTR mirroring.
+
 ---
 
 ## Tech Stack

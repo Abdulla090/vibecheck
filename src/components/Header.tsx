@@ -11,8 +11,10 @@ import {
   Sliders, 
   Menu, 
   X, 
-  MessageCircle 
+  MessageCircle,
+  LayoutDashboard
 } from "lucide-react";
+import Link from "next/link";
 
 interface HeaderProps {
   lang: Language;
@@ -81,6 +83,18 @@ export default function Header({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* CRM Portal Button */}
+          <Link
+            href="/crm"
+            title="Clinic CRM & Pharmacy Dashboard"
+            className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 text-emerald-bright border border-emerald-500/30 hover:border-emerald-surgical text-xs font-bold flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+          >
+            <LayoutDashboard className="w-3.5 h-3.5 text-emerald-bright" />
+            <span className="font-mono">
+              {isRtl ? "CRM داشبۆرد" : "CRM Portal"}
+            </span>
+          </Link>
+
           {/* Pitch Demo Settings Button */}
           <button
             type="button"
@@ -165,6 +179,14 @@ export default function Header({
             >
               {isRtl ? "نۆرەگرتنی VIP لە واتسئەپ" : "WhatsApp VIP Booking"}
             </a>
+            <Link
+              href="/crm"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-emerald-bright hover:text-white py-1.5 flex items-center gap-2 font-bold"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>{isRtl ? "سیستەمی بەڕێوەبردنی کلینیک و دەرمانخانە (CRM)" : "Clinic & Pharmacy CRM Dashboard"}</span>
+            </Link>
           </nav>
 
           <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs">

@@ -3,7 +3,8 @@
 import React from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
 import { normalizeIraqiPhone } from "@/utils/phone";
-import { MessageCircle, Phone, Globe, Sliders } from "lucide-react";
+import { MessageCircle, Phone, Globe, Sliders, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 
 interface FloatingMobileBarProps {
   lang: Language;
@@ -50,6 +51,15 @@ export default function FloatingMobileBar({
         >
           <Globe className="w-4 h-4 text-emerald-bright" />
         </button>
+
+        {/* CRM Dashboard Link */}
+        <Link
+          href="/crm"
+          className="p-3 rounded-xl bg-obsidian-850 border border-emerald-500/30 text-emerald-bright flex items-center justify-center active:scale-95 transition-transform"
+          title="Clinic & Pharmacy CRM"
+        >
+          <LayoutDashboard className="w-4 h-4" />
+        </Link>
 
         {/* Demo Drawer */}
         <button

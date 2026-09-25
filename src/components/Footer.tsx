@@ -3,7 +3,8 @@
 import React from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
 import { normalizeIraqiPhone } from "@/utils/phone";
-import { Crown, MessageCircle, Phone, MapPin, Clock, ShieldCheck, Heart } from "lucide-react";
+import { Crown, MessageCircle, Phone, MapPin, Clock, ShieldCheck, Heart, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 
 interface FooterProps {
   lang: Language;
@@ -60,6 +61,15 @@ export default function Footer({ lang, config }: FooterProps) {
                 <a href="#book" className="hover:text-emerald-bright transition-colors">
                   {isRtl ? "نۆرەگرتنی VIP لە واتسئەپ" : "WhatsApp VIP Concierge"}
                 </a>
+              </li>
+              <li>
+                <Link
+                  href="/crm"
+                  className="text-emerald-bright hover:underline font-bold flex items-center gap-1.5 transition-colors"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "سیستەمی CRM و دەرمانسازی کلینیک" : "Clinic & Pharmacy CRM Portal"}</span>
+                </Link>
               </li>
             </ul>
           </div>

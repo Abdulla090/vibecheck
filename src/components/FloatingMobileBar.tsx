@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
+import { normalizeIraqiPhone } from "@/utils/phone";
 import { MessageCircle, Phone, Globe, Sliders } from "lucide-react";
 
 interface FloatingMobileBarProps {
@@ -33,7 +34,7 @@ export default function FloatingMobileBar({
 
         {/* Quick Call */}
         <a
-          href={`tel:${config.phone}`}
+          href={`tel:+${normalizeIraqiPhone(config.phone).cleanDigits}`}
           className="p-3 rounded-xl bg-obsidian-850 border border-white/[0.08] text-emerald-bright flex items-center justify-center active:scale-95 transition-transform"
           title="Call Clinic"
         >

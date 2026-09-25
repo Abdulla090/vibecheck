@@ -21,11 +21,19 @@
     color: #F8FAFC;
   }
   
-  html[dir="rtl"] body {
+  html[dir="rtl"] body,
+  html[dir="rtl"] input,
+  html[dir="rtl"] button,
+  html[dir="rtl"] textarea,
+  html[dir="rtl"] select {
     font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
   }
 
-  html[dir="ltr"] body {
+  html[dir="ltr"] body,
+  html[dir="ltr"] input,
+  html[dir="ltr"] button,
+  html[dir="ltr"] textarea,
+  html[dir="ltr"] select {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 

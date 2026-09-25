@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
 import { CLINIC_PRESETS } from "@/data/clinicData";
+import { normalizeIraqiPhone } from "@/utils/phone";
 import { 
   Sliders, 
   X, 
-  RotateCcw, 
   Save, 
   Building, 
   Phone, 
@@ -16,8 +16,8 @@ import {
   Sparkles,
   Briefcase,
   CheckCircle,
-  HelpCircle,
-  TrendingUp
+  TrendingUp,
+  Check
 } from "lucide-react";
 
 interface DemoSettingsDrawerProps {
@@ -39,11 +39,13 @@ export default function DemoSettingsDrawer({
   const [activeTab, setActiveTab] = useState<"customize" | "pitch">("customize");
 
   const [formData, setFormData] = useState<ClinicConfig>(config);
+  const [rawPhoneInput, setRawPhoneInput] = useState<string>(config.displayPhone || config.phone);
   const [saveToast, setSaveToast] = useState(false);
 
   // Sync if config changes from outside
   React.useEffect(() => {
     setFormData(config);
+    setRawPhoneInput(config.displayPhone || config.phone);
   }, [config]);
 
   if (!isOpen) return null;
@@ -51,11 +53,21 @@ export default function DemoSettingsDrawer({
   const handleApplyPreset = (presetConfig: Partial<ClinicConfig>) => {
     const updated = { ...formData, ...presetConfig };
     setFormData(updated);
+    if (presetConfig.phone) {
+      const normalized = normalizeIraqiPhone(presetConfig.phone);
+      setRawPhoneInput(presetConfig.displayPhone || normalized.displayPhone);
+    }
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateConfig(formData);
+    const { cleanDigits, displayPhone } = normalizeIraqiPhone(rawPhoneInput);
+    const finalizedConfig: ClinicConfig = {
+      ...formData,
+      phone: cleanDigits,
+      displayPhone: displayPhone,
+    };
+    onUpdateConfig(finalizedConfig);
     setSaveToast(true);
     setTimeout(() => {
       setSaveToast(false);
@@ -63,11 +75,13 @@ export default function DemoSettingsDrawer({
     }, 900);
   };
 
+  const previewNormalized = normalizeIraqiPhone(rawPhoneInput);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/70 backdrop-blur-sm transition-all duration-300">
       <div
         className="w-full max-w-xl h-full bg-obsidian-900 border-l border-white/[0.1] shadow-2xl flex flex-col overflow-hidden text-slate-200"
-        dir="ltr" // Kept LTR for technical settings clarity or adaptive
+        dir="ltr"
       >
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between bg-obsidian-950">
@@ -186,24 +200,25 @@ export default function DemoSettingsDrawer({
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-emerald-bright" />
-                    Receptionist WhatsApp (No spaces or plus, e.g. 9647501234567):
+                    Receptionist WhatsApp (e.g. 0750 123 4567 or +964 750...):
                   </label>
                   <input
                     type="text"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        phone: e.target.value,
-                        displayPhone: e.target.value.startsWith("964")
-                          ? `+964 ${e.target.value.slice(3, 6)} ${e.target.value.slice(6, 9)} ${e.target.value.slice(9)}`
-                          : e.target.value,
-                      })
-                    }
+                    value={rawPhoneInput}
+                    onChange={(e) => setRawPhoneInput(e.target.value)}
+                    placeholder="0750 123 4567"
                     className="w-full px-3 py-2 rounded-xl bg-obsidian-800 border border-white/[0.08] text-white font-mono text-xs focus:outline-none focus:border-emerald-surgical"
                   />
-                  <p className="text-[10px] text-emerald-bright mt-1">
-                    Tip: Ask the doctor or receptionist for their WhatsApp number right now, type it here, and tap "Book VIP Consultation" to see their phone ring live!
+
+                  {/* Real-time normalized preview */}
+                  <div className="mt-2 p-2.5 rounded-lg bg-obsidian-950 border border-emerald-surgical/20 flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-slate-400">Target WhatsApp URL:</span>
+                    <span className="text-emerald-bright font-bold">
+                      wa.me/{previewNormalized.cleanDigits}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Accepts any Iraqi format: 0750..., 0770..., +964 750..., or 964750... automatically converts to official WhatsApp link.
                   </p>
                 </div>
               </div>

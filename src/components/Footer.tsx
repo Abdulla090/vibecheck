@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
+import { normalizeIraqiPhone } from "@/utils/phone";
 import { Crown, MessageCircle, Phone, MapPin, Clock, ShieldCheck, Heart } from "lucide-react";
 
 interface FooterProps {
@@ -92,7 +93,7 @@ export default function Footer({ lang, config }: FooterProps) {
             </p>
             <div className="pt-1">
               <a
-                href={`https://wa.me/${config.phone.replace(/[^0-9]/g, "")}`}
+                href={`https://wa.me/${normalizeIraqiPhone(config.phone).cleanDigits}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-surgical text-obsidian-950 font-bold text-xs uppercase tracking-wider hover:bg-emerald-bright transition-all"

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
+import { normalizeIraqiPhone } from "@/utils/phone";
 import { 
   Sparkles, 
   Crown, 
@@ -105,7 +106,7 @@ export default function Header({
 
           {/* Fast Call Button */}
           <a
-            href={`tel:${config.phone}`}
+            href={`tel:+${normalizeIraqiPhone(config.phone).cleanDigits}`}
             className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-850 text-slate-200 border border-white/[0.08] hover:border-white/20 text-xs font-semibold transition-all"
           >
             <PhoneCall className="w-3.5 h-3.5 text-emerald-bright" />

@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { ClinicConfig, Language } from "@/types/clinic";
 import { PROCEDURES } from "@/data/clinicData";
+import { normalizeIraqiPhone } from "@/utils/phone";
 import { 
   MessageCircle, 
-  Calendar, 
   Clock, 
   User, 
   Phone, 
@@ -34,7 +34,6 @@ export default function WhatsAppBookingEngine({
 
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
-  const [preferredDate, setPreferredDate] = useState("Tomorrow / سبەی");
   const [timeSlot, setTimeSlot] = useState<"morning" | "afternoon" | "evening">("afternoon");
   const [notes, setNotes] = useState("");
   const [copied, setCopied] = useState(false);
@@ -63,19 +62,21 @@ export default function WhatsAppBookingEngine({
       : `${selectedProcedure.titleEn} ($${selectedProcedure.priceUsd})`;
 
     const slotText = isRtl ? slotLabels[timeSlot].ckb : slotLabels[timeSlot].en;
+    const formattedPatientPhone = patientPhone.trim() ? patientPhone.trim() : (isRtl ? "[نەنوسراوە]" : "[Not provided]");
 
+    // Clean luxury medical concierge format without regular emojis (Anti-Slop standard)
     const lines = [
-      `🌟 *VIP Consultation Request | داواکاری نۆرەی تایبەت*`,
-      `📍 *Clinic:* ${config.nameEn} / ${config.nameCkb}`,
-      `👨‍⚕️ *Doctor:* ${config.doctorEn}`,
+      `*VIP CONSULTATION REQUEST | DAWAY NORA (نۆرەی تایبەت)*`,
+      `*Clinic / کلینیک:* ${config.nameEn} / ${config.nameCkb}`,
+      `*Doctor / پزیشک:* ${config.doctorEn}`,
       `----------------------------------------`,
-      `👤 *Patient Name / ناوی نەخۆش:* ${patientName || (isRtl ? "[نەنوسراوە]" : "[Not provided]")}`,
-      `📞 *Phone / مۆبایل:* ${patientPhone || (isRtl ? "[نەنوسراوە]" : "[Not provided]")}`,
-      `🩺 *Procedure / چارەسەر:* ${procTitle}`,
-      `🗓 *Preferred Slot / کاتی گونجاو:* ${slotText}`,
-      notes ? `💬 *Notes / تێبینی:* ${notes}` : null,
+      `*Patient / نەخۆش:* ${patientName.trim() || (isRtl ? "[نەنوسراوە]" : "[Not provided]")}`,
+      `*Phone / مۆبایل:* ${formattedPatientPhone}`,
+      `*Procedure / چارەسەر:* ${procTitle}`,
+      `*Slot / کاتی سەردان:* ${slotText}`,
+      notes.trim() ? `*Notes / تێبینی:* ${notes.trim()}` : null,
       `----------------------------------------`,
-      `✨ *Sent via VIP Concierge Portal (Erbil/Suly)*`,
+      `[VIP Concierge Portal · Erbil & Sulaymaniyah]`,
     ].filter(Boolean);
 
     return lines.join("\n");
@@ -85,8 +86,8 @@ export default function WhatsAppBookingEngine({
     e.preventDefault();
     const message = constructMessage();
     const encoded = encodeURIComponent(message);
-    const cleanPhone = config.phone.replace(/[^0-9]/g, "");
-    const waUrl = `https://wa.me/${cleanPhone}?text=${encoded}`;
+    const { cleanDigits } = normalizeIraqiPhone(config.phone);
+    const waUrl = `https://wa.me/${cleanDigits}?text=${encoded}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -234,7 +235,7 @@ export default function WhatsAppBookingEngine({
                       required
                       value={patientPhone}
                       onChange={(e) => setPatientPhone(e.target.value)}
-                      placeholder="+964 750 000 0000"
+                      placeholder="0750 000 0000 / +964 750..."
                       className={`w-full py-3 ${isRtl ? "pr-10 pl-3" : "pl-10 pr-3"} rounded-xl bg-obsidian-900 border border-white/[0.08] text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-surgical focus:ring-1 focus:ring-emerald-surgical transition-all`}
                     />
                   </div>
@@ -275,7 +276,7 @@ export default function WhatsAppBookingEngine({
                   <span>{isRtl ? "پاراستنی تەواوی نهێنی نەخۆش" : "Strict Patient Confidentiality"}</span>
                 </span>
                 <a
-                  href={`tel:${config.phone}`}
+                  href={`tel:${normalizeIraqiPhone(config.phone).cleanDigits}`}
                   className="text-champagne-400 hover:underline flex items-center gap-1"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />

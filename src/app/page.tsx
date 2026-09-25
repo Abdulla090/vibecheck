@@ -1,158 +1,218 @@
-import { CheckCircle2, GitBranch, GitCommit, Globe, RefreshCw, Server, ShieldCheck, Terminal, Zap } from "lucide-react";
+"use client";
+
+import React, { useState } from "react";
+import PromptScorer from "@/components/PromptScorer";
+import VibeCraftPortal from "@/components/VibeCraftPortal";
+import { 
+  GitBranch, 
+  Globe, 
+  Terminal, 
+  CheckCircle2, 
+  Server, 
+  Zap, 
+  Layers, 
+  Users, 
+  ShieldCheck, 
+  ExternalLink 
+} from "lucide-react";
 
 export default function Home() {
-  const currentTimestamp = new Date().toUTCString();
+  const [activeTab, setActiveTab] = useState<"scorer" | "portal" | "pipeline">("scorer");
 
   return (
-    <main className="min-h-screen bg-[#090a0f] text-[#f3f4f6] px-6 py-12 md:px-16 lg:px-24">
-      {/* Header bar */}
-      <header className="max-w-5xl mx-auto flex items-center justify-between border-b border-[#222634] pb-6 mb-12">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#141824] border border-[#262c3e] flex items-center justify-center font-bold text-emerald-400 text-lg">
-            V
-          </div>
-          <div>
+    <div className="min-h-screen bg-[#10110f] text-[#f2f3ed]">
+      {/* Top Sticky Header */}
+      <header className="sticky top-0 z-50 border-b border-[#2e3029] bg-[#10110f]/95 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo & Cohort status */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-[#bce83e] text-[#101408] font-mono font-extrabold flex items-center justify-center text-sm shadow-[2px_2px_0_#f2f3ed]">
+              V
+            </div>
             <div className="flex items-center gap-2">
-              <h1 className="font-semibold text-lg tracking-tight text-white">VibeCheck</h1>
-              <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-950/60 border border-emerald-800 text-emerald-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live CI/CD
+              <span className="font-extrabold text-base tracking-tight font-mono text-[#f2f3ed]">
+                VibeCheck
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-[#141512] border border-[#2e3029] text-[#bce83e]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#bce83e] animate-pulse" />
+                Founding Cohort · 10 Seats
               </span>
             </div>
-            <p className="text-xs text-zinc-400 font-mono">Abdulla090/vibecheck</p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono text-zinc-400">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#11131a] border border-[#222634]">
-            <Server className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Region: iad1</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#11131a] border border-[#222634] text-emerald-400">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>All Systems Operational</span>
-          </div>
+          {/* Navigation Mode Switcher */}
+          <nav className="flex items-center gap-1 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab("scorer")}
+              className={`px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
+                activeTab === "scorer"
+                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
+                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
+              }`}
+            >
+              PromptScorer
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("portal")}
+              className={`px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
+                activeTab === "portal"
+                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
+                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
+              }`}
+            >
+              DAO Portal
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("pipeline")}
+              className={`hidden md:inline-flex px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
+                activeTab === "pipeline"
+                  ? "bg-[#bce83e] text-[#101408] border-[#bce83e] shadow-[3px_3px_0_#f2f3ed]"
+                  : "bg-transparent text-[#b0b3aa] border-transparent hover:text-[#f2f3ed] hover:border-[#2e3029]"
+              }`}
+            >
+              CI/CD
+            </button>
+          </nav>
         </div>
       </header>
 
-      {/* Main Content Container */}
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Hero Section */}
-        <section className="bg-[#11131a] border border-[#222634] rounded-xl p-8 relative overflow-hidden">
-          <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/50 border border-emerald-800/80 text-emerald-300 text-xs font-mono">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
-              Automated Vercel & GitHub Deployment
-            </div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Continuous Delivery Pipeline
-            </h2>
-            <p className="text-sm text-zinc-400 leading-relaxed">
-              Every commit and pull request merged to the <code className="text-zinc-200 bg-[#1c202d] px-1.5 py-0.5 rounded font-mono text-xs">main</code> branch automatically triggers a production build and deploys instantly to the global edge network.
-            </p>
-          </div>
+      {/* Main Container */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        {/* TAB 1: PromptScorer (Interactive Evaluation Tool) */}
+        {activeTab === "scorer" && (
+          <div className="space-y-12">
+            <PromptScorer />
 
-          <div className="mt-8 pt-6 border-t border-[#222634] grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div>
-              <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Repository</p>
-              <p className="text-sm font-medium text-zinc-200 mt-1 flex items-center gap-1.5">
-                <GitBranch className="w-4 h-4 text-emerald-400" />
-                Abdulla090/vibecheck
+            {/* Quick Banner to DAO Portal */}
+            <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="font-bold text-sm text-[#f2f3ed] font-mono">
+                  Ready to test your prompt in the 30-Day Sprint?
+                </h4>
+                <p className="text-xs text-[#b0b3aa] font-mono mt-0.5">
+                  Squad A (Product) and Squad B (Launch) are now accepting 4-hour micro-task submissions.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("portal")}
+                className="px-4 py-2 bg-[#f2f3ed] text-[#10110f] border border-[#f2f3ed] text-xs font-mono font-bold uppercase tracking-wider hover:bg-[#bce83e] transition-all"
+              >
+                View 30-Day Launch Roadmap →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: VibeCraft DAO Launch Portal */}
+        {activeTab === "portal" && (
+          <VibeCraftPortal onOpenScorer={() => setActiveTab("scorer")} />
+        )}
+
+        {/* TAB 3: CI/CD Pipeline Dashboard */}
+        {activeTab === "pipeline" && (
+          <div className="space-y-8">
+            <div className="border-b border-[#2e3029] pb-6">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-[#f2f3ed]">
+                Automated CI/CD Pipeline
+              </h2>
+              <p className="text-xs sm:text-sm text-[#b0b3aa] font-mono mt-1">
+                Continuous integration connected to GitHub &amp; Vercel edge deployment infrastructure
               </p>
             </div>
-            <div>
-              <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Hosting Platform</p>
-              <p className="text-sm font-medium text-zinc-200 mt-1 flex items-center gap-1.5">
-                <Globe className="w-4 h-4 text-sky-400" />
-                Vercel Edge Network
-              </p>
+
+            {/* Pipeline Status Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
+                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Git Provider</span>
+                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
+                  <GitBranch className="w-4 h-4 text-[#bce83e]" />
+                  Abdulla090/vibecheck
+                </h3>
+                <p className="text-xs text-[#b0b3aa] font-mono">
+                  Tracked branch: <code className="text-[#f2f3ed]">main</code>
+                </p>
+                <div className="pt-2">
+                  <a
+                    href="https://github.com/Abdulla090/vibecheck"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-mono text-[#38bdf8] hover:underline"
+                  >
+                    Open GitHub Repo <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
+                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Edge Hosting</span>
+                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-[#38bdf8]" />
+                  Vercel Edge Network
+                </h3>
+                <p className="text-xs text-[#b0b3aa] font-mono">
+                  Framework: Next.js 15 App Router
+                </p>
+                <div className="pt-2">
+                  <a
+                    href="https://vibecheck-gamma-nine.vercel.app"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-mono text-[#bce83e] hover:underline"
+                  >
+                    Open Live Deployment <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="p-6 bg-[#191a17] border-2 border-[#2e3029] space-y-3">
+                <span className="text-xs font-mono text-[#b0b3aa] uppercase">Squad Dispatch</span>
+                <h3 className="text-lg font-bold font-mono text-[#f2f3ed] flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-[#ff7055]" />
+                  Auto-deploy on Push
+                </h3>
+                <p className="text-xs text-[#b0b3aa] font-mono">
+                  Squad Alpha &amp; Squad Beta pull requests build instantly on merge.
+                </p>
+                <div className="pt-2 text-xs font-mono text-[#bce83e] flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  CI/CD Active
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Sync Mode</p>
-              <p className="text-sm font-medium text-zinc-200 mt-1 flex items-center gap-1.5">
-                <RefreshCw className="w-4 h-4 text-emerald-400" />
-                Automatic on Git Push
-              </p>
+
+            {/* Terminal Log Preview */}
+            <div className="p-6 bg-[#0b0c0a] border-2 border-[#2e3029] space-y-3 font-mono text-xs">
+              <div className="flex items-center justify-between text-[#b0b3aa] border-b border-[#2e3029] pb-3">
+                <span className="flex items-center gap-2 text-[#f2f3ed]">
+                  <Terminal className="w-4 h-4 text-[#bce83e]" />
+                  Latest Verification Log
+                </span>
+                <span className="text-emerald-400">READY</span>
+              </div>
+              <pre className="text-[#e9ecdf] leading-relaxed overflow-x-auto">
+{`▲ Next.js 15.5.26 production build
+✓ Compiled successfully in 5.4s
+✓ Prerendered static pages (4/4)
+✓ Edge distribution: Washington, D.C., USA (iad1)
+✓ Production alias: https://vibecheck-gamma-nine.vercel.app
+✓ Attestation anchor: Base L2 (8453)`}
+              </pre>
             </div>
           </div>
-        </section>
+        )}
+      </main>
 
-        {/* Pipeline Architecture & Collaborators */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Active Pipeline Status */}
-          <div className="bg-[#11131a] border border-[#222634] rounded-xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-zinc-400" />
-                Deployment Workflow
-              </h3>
-              <span className="text-xs font-mono text-zinc-500">CI/CD Engine</span>
-            </div>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="p-3 rounded-lg bg-[#0d0f15] border border-[#1d212d] flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="text-zinc-300">1. Git Remote Origin</span>
-                </div>
-                <span className="text-emerald-400">Connected</span>
-              </div>
-              <div className="p-3 rounded-lg bg-[#0d0f15] border border-[#1d212d] flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="text-zinc-300">2. Vercel Project Link</span>
-                </div>
-                <span className="text-emerald-400">Active</span>
-              </div>
-              <div className="p-3 rounded-lg bg-[#0d0f15] border border-[#1d212d] flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="text-zinc-300">3. Edge Build & Prune</span>
-                </div>
-                <span className="text-emerald-400">Healthy</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Squad Integration & Health */}
-          <div className="bg-[#11131a] border border-[#222634] rounded-xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-zinc-400" />
-                Squad Collaboration
-              </h3>
-              <span className="text-xs font-mono text-zinc-500">Multi-Agent</span>
-            </div>
-
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Squad Alpha and Squad Beta automated merges will immediately build on Vercel without manual deployment steps.
-            </p>
-
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="p-3 rounded-lg bg-[#0d0f15] border border-[#1d212d]">
-                <p className="text-[11px] font-mono text-zinc-500 uppercase">Squad Alpha</p>
-                <div className="flex items-center gap-1.5 mt-1 text-xs text-zinc-200 font-medium">
-                  <GitCommit className="w-3.5 h-3.5 text-emerald-400" />
-                  Push Ready
-                </div>
-              </div>
-              <div className="p-3 rounded-lg bg-[#0d0f15] border border-[#1d212d]">
-                <p className="text-[11px] font-mono text-zinc-500 uppercase">Squad Beta</p>
-                <div className="flex items-center gap-1.5 mt-1 text-xs text-zinc-200 font-medium">
-                  <GitCommit className="w-3.5 h-3.5 text-emerald-400" />
-                  Push Ready
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer info */}
-        <footer className="pt-6 border-t border-[#222634] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-zinc-500">
-          <div>Verified build target: Next.js 15 App Router</div>
-          <div>Last checked: {currentTimestamp}</div>
-        </footer>
-      </div>
-    </main>
+      {/* Footer */}
+      <footer className="border-t border-[#2e3029] py-8 mt-16 bg-[#0b0c0a]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#b0b3aa]">
+          <div>VibeCheck · Launch cycle 01 · Powered by Muse Spark &amp; META Muse</div>
+          <div>Build small. Test early. Ship the proof.</div>
+        </div>
+      </footer>
+    </div>
   );
 }

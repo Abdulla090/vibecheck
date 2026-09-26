@@ -94,6 +94,11 @@
 
 /* Official Medical Clinical Print Stylesheet */
 @media print {
+  @page {
+    size: auto;
+    margin: 12mm;
+  }
+
   /* Hide non-printable app chrome */
   header,
   nav,
@@ -106,6 +111,8 @@
   body, html {
     background: #ffffff !important;
     color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .print-modal-overlay {

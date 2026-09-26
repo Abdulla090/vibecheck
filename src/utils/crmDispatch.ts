@@ -224,25 +224,48 @@ export function buildInvoiceDispatchMessage(
 export function buildSupplierReorderMessage(
   item: MedicationItem,
   clinicName: string,
-  quantityToOrder: number = 20
+  quantityToOrder: number = 20,
+  lang: Language = "en"
 ): WhatsAppMessageResult {
   const phoneInfo = normalizeIraqiPhone(item.supplierPhone);
+  const isRtl = lang === "ckb";
 
-  const lines = [
-    `*OFFICIAL RESTOCK PURCHASE ORDER | ${clinicName}*`,
-    `Supplier: *${item.supplierName}*`,
-    `Attn: Medical & Pharmacy Dispatch`,
-    ``,
-    `Please dispatch urgent stock replenishments for:`,
-    `- Product: *${item.brandName}*`,
-    `- Generic / Spec: *${item.genericName}*`,
-    `- Current Remaining Stock: *${item.currentStock} ${item.unit}*`,
-    `- Minimum Threshold: *${item.minStockLevel} ${item.unit}*`,
-    `- Requested Order Quantity: *${quantityToOrder} ${item.unit}*`,
-    `- Preferred Delivery Address: ${clinicName} Pharmacy Depot`,
-    ``,
-    `Please confirm delivery timeline and invoice via return WhatsApp.`,
-  ];
+  let lines: string[];
+  if (isRtl) {
+    lines = [
+      `*داواکاری فەرمی کڕین و پڕکردنەوەی کۆگا (PO) | ${clinicName}*`,
+      `بۆ دابینکەر: *${item.supplierName}*`,
+      `بەڕێوەبەرایەتی بەشی دەرمان و دابەشکردنی پزیشکی`,
+      ``,
+      `تکایە بەپەلە ئەم کەرەستانە بنێرن بۆ کلینیک:`,
+      `- کاڵا: *${item.brandName}*`,
+      `- ناوی زانستی/تایبەتمەندی: *${item.genericName}*`,
+      `- باچ: *${item.batchNumber}*`,
+      `- بڕی ماوە لە کۆگا: *${item.currentStock} ${item.unit}*`,
+      `- کەمترین ئاستی ڕێگەپێدراو: *${item.minStockLevel} ${item.unit}*`,
+      `- بڕی داواکراو بۆ کڕین: *${quantityToOrder} ${item.unit}*`,
+      `- ناونیشانی وەرگرتن: کۆگای دەرمانی ${clinicName}`,
+      ``,
+      `تکایە وادەی گەیشتن و پسوولەی پارەدان بە وەڵامی ئەم نامەیە ئاگادارمان بکەنەوە.`,
+    ];
+  } else {
+    lines = [
+      `*OFFICIAL RESTOCK PURCHASE ORDER | ${clinicName}*`,
+      `Supplier: *${item.supplierName}*`,
+      `Attn: Medical & Pharmacy Dispatch`,
+      ``,
+      `Please dispatch urgent stock replenishments for:`,
+      `- Product: *${item.brandName}*`,
+      `- Generic / Spec: *${item.genericName}*`,
+      `- Batch: *${item.batchNumber}*`,
+      `- Current Remaining Stock: *${item.currentStock} ${item.unit}*`,
+      `- Minimum Threshold: *${item.minStockLevel} ${item.unit}*`,
+      `- Requested Order Quantity: *${quantityToOrder} ${item.unit}*`,
+      `- Preferred Delivery Address: ${clinicName} Pharmacy Depot`,
+      ``,
+      `Please confirm delivery timeline and invoice via return WhatsApp.`,
+    ];
+  }
 
   const rawMessage = lines.join("\n");
   const waUrl = `https://wa.me/${phoneInfo.cleanDigits}?text=${encodeURIComponent(rawMessage)}`;

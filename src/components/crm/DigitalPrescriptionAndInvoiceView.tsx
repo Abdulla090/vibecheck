@@ -32,6 +32,8 @@ interface DigitalPrescriptionAndInvoiceViewProps {
   onUpdateRxStatus: (rxId: string, status: "dispensed" | "pending") => void;
   triggerAddModal?: boolean;
   onResetTriggerAddModal?: () => void;
+  initialSelectedLeadForInvoice?: PatientLead | null;
+  onResetInitialInvoiceLead?: () => void;
 }
 
 export default function DigitalPrescriptionAndInvoiceView({
@@ -44,6 +46,8 @@ export default function DigitalPrescriptionAndInvoiceView({
   onUpdateRxStatus,
   triggerAddModal,
   onResetTriggerAddModal,
+  initialSelectedLeadForInvoice,
+  onResetInitialInvoiceLead,
 }: DigitalPrescriptionAndInvoiceViewProps) {
   const isRtl = lang === "ckb";
   const [activeSubTab, setActiveSubTab] = useState<"prescriptions" | "invoices">("prescriptions");
@@ -59,6 +63,14 @@ export default function DigitalPrescriptionAndInvoiceView({
       onResetTriggerAddModal?.();
     }
   }, [triggerAddModal, onResetTriggerAddModal]);
+
+  useEffect(() => {
+    if (initialSelectedLeadForInvoice) {
+      setActiveSubTab("invoices");
+      setSelectedLeadForInvoice(initialSelectedLeadForInvoice);
+      onResetInitialInvoiceLead?.();
+    }
+  }, [initialSelectedLeadForInvoice, onResetInitialInvoiceLead]);
 
   // New Rx Form
   const [patientName, setPatientName] = useState("");
@@ -146,7 +158,7 @@ export default function DigitalPrescriptionAndInvoiceView({
   return (
     <div className="space-y-6">
       {/* 1. Header with Tab Toggle & Search */}
-      <div className="hairline-card p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="hairline-card p-4 sm:p-5 rounded-2xl border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
         {/* Toggle Pills */}
         <div className="flex items-center gap-2 bg-obsidian-850 p-1 rounded-xl border border-white/[0.08]">
           <button
@@ -210,7 +222,7 @@ export default function DigitalPrescriptionAndInvoiceView({
 
       {/* 2. Sub-tab Content: Prescriptions */}
       {activeSubTab === "prescriptions" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
           {filteredPrescriptions.map((rx) => {
             const phoneInfo = normalizeIraqiPhone(rx.patientPhone);
             const iqdTotal = rx.totalAmountUsd * config.usdToIqdRate;
@@ -332,7 +344,7 @@ export default function DigitalPrescriptionAndInvoiceView({
 
       {/* 3. Sub-tab Content: Invoices */}
       {activeSubTab === "invoices" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
           {completedOrInTreatmentLeads.map((lead) => {
             const phoneInfo = normalizeIraqiPhone(lead.phone);
             const iqdTotal = lead.estimatedValueUsd * config.usdToIqdRate;
@@ -679,7 +691,7 @@ export default function DigitalPrescriptionAndInvoiceView({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2 no-print">
               <button
                 type="button"
                 onClick={() => {
@@ -717,6 +729,34 @@ export default function DigitalPrescriptionAndInvoiceView({
             </div>
 
             <form onSubmit={handleCreateRx} className="space-y-3.5 text-xs">
+              {/* Quick Patient Select Dropdown */}
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">
+                  {isRtl ? "هەڵبژاردنی خێرای نەخۆش لە سیستم (ئارەزوومەندانە)" : "Quick Select Patient from CRM (Optional)"}
+                </label>
+                <select
+                  aria-label={isRtl ? "هەڵبژاردنی خێرای نەخۆش" : "Quick Select Patient"}
+                  onChange={(e) => {
+                    const selected = leads.find((l) => l.id === e.target.value);
+                    if (selected) {
+                      setPatientName(selected.fullName);
+                      setPatientPhone(selected.phone);
+                      setPatientAge(selected.age);
+                    }
+                  }}
+                  defaultValue=""
+                  className="w-full bg-obsidian-800 border border-white/[0.08] rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none cursor-pointer"
+                >
+                  <option value="" className="bg-obsidian-900 text-slate-400">
+                    {isRtl ? "نەخۆشێکی نوێ یان تۆمارنەکراو بنووسە..." : "Select registered patient or enter manually below..."}
+                  </option>
+                  {leads.map((l) => (
+                    <option key={l.id} value={l.id} className="bg-obsidian-900 text-white">
+                      {l.fullName} ({l.phone}) — {l.city} ({l.vipTier})
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-slate-300 font-semibold mb-1">
                   {isRtl ? "ناوی تەواوی نەخۆش" : "Patient Full Name"}

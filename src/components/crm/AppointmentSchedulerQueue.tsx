@@ -45,6 +45,7 @@ export default function AppointmentSchedulerQueue({
   const isRtl = lang === "ckb";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDoctorFilter, setSelectedDoctorFilter] = useState("all");
+  const [selectedRoomFilter, setSelectedRoomFilter] = useState("all");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<"all" | AppointmentStatus>("all");
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 
@@ -75,15 +76,17 @@ export default function AppointmentSchedulerQueue({
       apt.procedureTitleCkb.includes(searchQuery);
 
     const matchesDoc = selectedDoctorFilter === "all" || apt.doctor.includes(selectedDoctorFilter);
+    const matchesRoom = selectedRoomFilter === "all" || apt.room.toLowerCase().includes(selectedRoomFilter.toLowerCase());
     const matchesStatus = selectedStatusFilter === "all" || apt.status === selectedStatusFilter;
 
-    return matchesSearch && matchesDoc && matchesStatus;
+    return matchesSearch && matchesDoc && matchesRoom && matchesStatus;
   });
 
   const inChairCount = appointments.filter((a) => a.status === "in-chair").length;
   const waitingCount = appointments.filter((a) => a.status === "waiting").length;
   const scheduledCount = appointments.filter((a) => a.status === "scheduled").length;
   const completedCount = appointments.filter((a) => a.status === "completed").length;
+  const cancelledCount = appointments.filter((a) => a.status === "cancelled").length;
 
   const handleBookSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +155,14 @@ export default function AppointmentSchedulerQueue({
             <Calendar className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-2xl font-black text-white font-mono">{scheduledCount}</div>
-          <div className="text-[10px] text-slate-400 mt-1">{isRtl ? "سەردانی چاوەڕوانکراو" : "Slots remaining"}</div>
+          <div className="text-[10px] text-slate-400 mt-1">
+            {isRtl ? "سەردانی چاوەڕوانکراو" : "Slots remaining"}
+            {cancelledCount > 0 && (
+              <span className="text-rose-400 font-bold ml-1 rtl:mr-1">
+                ({cancelledCount} {isRtl ? "هەڵوەشاوە" : "cancelled"})
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Completed */}
@@ -197,6 +207,24 @@ export default function AppointmentSchedulerQueue({
             </select>
           </div>
 
+          {/* Room / Suite Filter */}
+          <div className="flex items-center gap-1.5 bg-obsidian-850 px-3 py-2 rounded-xl border border-white/[0.08] text-xs">
+            <MapPin className="w-3.5 h-3.5 text-champagne-400" />
+            <select
+              aria-label={isRtl ? "فلتەری ژوور و سوئیت" : "Filter Suite & Op Room"}
+              value={selectedRoomFilter}
+              onChange={(e) => setSelectedRoomFilter(e.target.value)}
+              className="bg-transparent text-slate-200 font-semibold text-xs focus:outline-none cursor-pointer"
+            >
+              <option value="all" className="bg-obsidian-900 text-white">{isRtl ? "هەموو ژوورەکان" : "All Suites / Rooms"}</option>
+              <option value="VIP Dental Suite 1" className="bg-obsidian-900 text-white">VIP Dental Suite 1 (Gulan)</option>
+              <option value="VIP Dental Suite 2" className="bg-obsidian-900 text-white">VIP Dental Suite 2</option>
+              <option value="Laser Suite B" className="bg-obsidian-900 text-white">Laser Suite B (Candela)</option>
+              <option value="Sterile Op-1" className="bg-obsidian-900 text-white">Sterile Op-1 (Surgical Theatre)</option>
+              <option value="Ortho Suite 3" className="bg-obsidian-900 text-white">Ortho Suite 3</option>
+            </select>
+          </div>
+
           {/* Status Filter */}
           <div className="flex items-center gap-1.5 bg-obsidian-850 px-3 py-2 rounded-xl border border-white/[0.08] text-xs">
             <Filter className="w-3.5 h-3.5 text-champagne-400" />
@@ -211,6 +239,7 @@ export default function AppointmentSchedulerQueue({
               <option value="waiting" className="bg-obsidian-900 text-white">{isRtl ? "لە چاوەڕوانی" : "Waiting"}</option>
               <option value="scheduled" className="bg-obsidian-900 text-white">{isRtl ? "حیجزکراو" : "Scheduled"}</option>
               <option value="completed" className="bg-obsidian-900 text-white">{isRtl ? "تەواوکراو" : "Completed"}</option>
+              <option value="cancelled" className="bg-obsidian-900 text-white">{isRtl ? "هەڵوەشاوە" : "Cancelled"}</option>
             </select>
           </div>
         </div>
@@ -239,13 +268,15 @@ export default function AppointmentSchedulerQueue({
                   ? "border-emerald-500/50 bg-emerald-950/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
                   : apt.status === "waiting"
                   ? "border-champagne-500/40 bg-champagne-950/10"
+                  : apt.status === "cancelled"
+                  ? "border-rose-500/30 bg-rose-950/10 opacity-75"
                   : "border-white/[0.08] hover:border-white/[0.14]"
               }`}
             >
               {/* Left: Time & Patient & Procedure */}
               <div className="flex items-start sm:items-center gap-3.5">
                 <div className="w-16 sm:w-20 text-center py-2 px-1 rounded-xl bg-obsidian-850 border border-white/[0.08] shrink-0">
-                  <div className="text-xs sm:text-sm font-black text-champagne-400 font-mono">
+                  <div className={`text-xs sm:text-sm font-black font-mono ${apt.status === "cancelled" ? "line-through text-slate-500" : "text-champagne-400"}`}>
                     {apt.timeSlot}
                   </div>
                   <div className="text-[9px] text-slate-500 font-mono mt-0.5">
@@ -255,7 +286,7 @@ export default function AppointmentSchedulerQueue({
 
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-black text-base text-white">
+                    <h3 className={`font-black text-base ${apt.status === "cancelled" ? "text-slate-400 line-through" : "text-white"}`}>
                       {apt.patientName}
                     </h3>
                     <span className="font-mono text-xs text-slate-400">
@@ -264,6 +295,11 @@ export default function AppointmentSchedulerQueue({
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-white/[0.06]">
                       {apt.department}
                     </span>
+                    {apt.status === "cancelled" && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                        {isRtl ? "هەڵوەشاوە" : "Cancelled"}
+                      </span>
+                    )}
                   </div>
 
                   <div className="text-xs text-emerald-bright/90 font-medium mt-1">
@@ -301,6 +337,8 @@ export default function AppointmentSchedulerQueue({
                       ? "bg-champagne-500/20 text-champagne-400 border-champagne-500/40"
                       : apt.status === "completed"
                       ? "bg-blue-500/20 text-blue-400 border-blue-500/40"
+                      : apt.status === "cancelled"
+                      ? "bg-rose-500/20 text-rose-400 border-rose-500/40"
                       : "bg-obsidian-850 text-slate-300 border-white/[0.08]"
                   }`}
                 >
@@ -311,16 +349,18 @@ export default function AppointmentSchedulerQueue({
                   <option value="cancelled" className="bg-obsidian-900 text-white">{isRtl ? "هەڵوەشاوە" : "Cancelled"}</option>
                 </select>
 
-                {/* 1-Click WhatsApp Room Call button */}
-                <button
-                  type="button"
-                  onClick={() => handleCallRoom(apt)}
-                  title={isRtl ? "بانگکردنی نەخۆش بە واتسئەپ" : "1-Click WhatsApp Room Call"}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-surgical hover:bg-emerald-bright text-obsidian-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "بانگی بکە" : "Call to Suite"}</span>
-                </button>
+                {/* 1-Click WhatsApp Room Call button (only for active, non-cancelled appointments) */}
+                {apt.status !== "cancelled" && (
+                  <button
+                    type="button"
+                    onClick={() => handleCallRoom(apt)}
+                    title={isRtl ? "بانگکردنی نەخۆش بە واتسئەپ" : "1-Click WhatsApp Room Call"}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-surgical hover:bg-emerald-bright text-obsidian-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "بانگی بکە" : "Call to Suite"}</span>
+                  </button>
+                )}
 
                 {/* WhatsApp Reminder button */}
                 <button

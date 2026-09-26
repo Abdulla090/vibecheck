@@ -94,6 +94,7 @@ export default function PatientPipelineKanban({
   const [selectedLeadDetails, setSelectedLeadDetails] = useState<PatientLead | null>(null);
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<PipelineStage | null>(null);
+  const [mobileStageFilter, setMobileStageFilter] = useState<"all" | PipelineStage>("all");
 
   useEffect(() => {
     if (triggerAddModal) {
@@ -226,12 +227,48 @@ export default function PatientPipelineKanban({
         </button>
       </div>
 
+      {/* Mobile Stage Selector Tabs (sm/md screens) */}
+      <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <button
+          type="button"
+          onClick={() => setMobileStageFilter("all")}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+            mobileStageFilter === "all"
+              ? "bg-emerald-surgical text-obsidian-950 shadow-sm"
+              : "bg-obsidian-850 text-slate-400 hover:text-white"
+          }`}
+        >
+          {isRtl ? "هەموو قۆناغەکان" : "All Stages"} ({filteredLeads.length})
+        </button>
+        {STAGES.map((s) => {
+          const count = filteredLeads.filter((l) => l.stage === s.id).length;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setMobileStageFilter(s.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                mobileStageFilter === s.id
+                  ? "bg-emerald-500/20 text-emerald-bright border border-emerald-500/40"
+                  : "bg-obsidian-850 text-slate-400 hover:text-white border border-transparent"
+              }`}
+            >
+              <span>{isRtl ? s.titleCkb : s.titleEn}</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-obsidian-900 text-slate-300">
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* 2. Horizontal Kanban Pipeline Grid (5 Columns) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-start">
         {STAGES.map((col) => {
           const colLeads = filteredLeads.filter((l) => l.stage === col.id);
           const colTotalUsd = getStageTotalUsd(col.id);
           const colTotalIqd = colTotalUsd * config.usdToIqdRate;
+          const isColVisibleOnMobile = mobileStageFilter === "all" || mobileStageFilter === col.id;
 
           return (
             <div
@@ -257,7 +294,9 @@ export default function PatientPipelineKanban({
                 setDragOverCol(null);
                 setDraggedLeadId(null);
               }}
-              className={`rounded-2xl border p-3 sm:p-3.5 flex flex-col space-y-3 min-h-[500px] transition-all duration-200 ${col.color} ${
+              className={`rounded-2xl border p-3 sm:p-3.5 flex-col space-y-3 min-h-[500px] transition-all duration-200 ${col.color} ${
+                isColVisibleOnMobile ? "flex" : "hidden lg:flex"
+              } ${
                 dragOverCol === col.id ? "ring-2 ring-emerald-bright/80 bg-emerald-950/40 border-emerald-surgical scale-[1.01]" : ""
               }`}
             >
@@ -367,7 +406,7 @@ export default function PatientPipelineKanban({
                           </button>
                         ) : <div className="w-6" />}
 
-                        {/* Middle Actions: 1-Click WhatsApp & Call & Invoice */}
+                        {/* Middle Actions: 1-Click WhatsApp & Call & Invoice & Direct Stage Jump */}
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
@@ -394,6 +433,20 @@ export default function PatientPipelineKanban({
                           >
                             <FileText className="w-3.5 h-3.5" />
                           </button>
+
+                          {/* Quick Stage Jump Select for Touch / Fast Navigation */}
+                          <select
+                            aria-label={isRtl ? "گۆڕینی قۆناغ" : "Change Pipeline Stage"}
+                            value={lead.stage}
+                            onChange={(e) => onUpdateLeadStage(lead.id, e.target.value as PipelineStage)}
+                            className="bg-obsidian-800 hover:bg-obsidian-750 text-slate-300 border border-white/[0.08] hover:border-emerald-500/40 rounded-lg px-1.5 py-1 text-[10px] font-semibold focus:outline-none cursor-pointer max-w-[85px] truncate"
+                          >
+                            {STAGES.map((s) => (
+                              <option key={s.id} value={s.id} className="bg-obsidian-900 text-white">
+                                {isRtl ? s.titleCkb : s.titleEn}
+                              </option>
+                            ))}
+                          </select>
                         </div>
 
                         {/* Right/Next stage button */}
@@ -698,6 +751,29 @@ export default function PatientPipelineKanban({
                   <p className="text-rose-300 text-xs mt-0.5">{selectedLeadDetails.allergies.join(", ")}</p>
                 </div>
               )}
+
+              {/* Direct Stage Changer in Modal */}
+              <div className="bg-obsidian-850 p-3 rounded-xl border border-white/[0.06]">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold mb-1.5">
+                  {isRtl ? "گۆڕینی قۆناغی چارەسەر لە هێڵدا" : "Update Pipeline Stage"}
+                </span>
+                <select
+                  aria-label={isRtl ? "گۆڕینی قۆناغی چارەسەر" : "Update Pipeline Stage"}
+                  value={selectedLeadDetails.stage}
+                  onChange={(e) => {
+                    const newStage = e.target.value as PipelineStage;
+                    onUpdateLeadStage(selectedLeadDetails.id, newStage);
+                    setSelectedLeadDetails({ ...selectedLeadDetails, stage: newStage });
+                  }}
+                  className="w-full bg-obsidian-800 border border-white/[0.08] hover:border-emerald-500/40 rounded-xl px-3 py-2 text-emerald-bright font-bold text-xs focus:outline-none cursor-pointer"
+                >
+                  {STAGES.map((s) => (
+                    <option key={s.id} value={s.id} className="bg-obsidian-900 text-white">
+                      {isRtl ? s.titleCkb : s.titleEn}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between gap-2">

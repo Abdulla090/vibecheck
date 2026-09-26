@@ -290,6 +290,7 @@ export default function CrmDashboardPage() {
             onUpdateLeadStage={handleUpdateLeadStage}
             onOpenWhatsApp={(lead) => setWhatsAppModalLead(lead)}
             onOpenInvoice={(lead) => {
+              setInvoiceModalLead(lead);
               setActiveTab("prescriptions");
             }}
             onAddNewLead={handleAddNewLead}
@@ -337,6 +338,8 @@ export default function CrmDashboardPage() {
             onUpdateRxStatus={handleUpdateRxStatus}
             triggerAddModal={triggerNewRxModal}
             onResetTriggerAddModal={() => setTriggerNewRxModal(false)}
+            initialSelectedLeadForInvoice={invoiceModalLead}
+            onResetInitialInvoiceLead={() => setInvoiceModalLead(null)}
           />
         )}
       </main>

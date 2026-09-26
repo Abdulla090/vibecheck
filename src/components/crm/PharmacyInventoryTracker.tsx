@@ -158,7 +158,7 @@ export default function PharmacyInventoryTracker({
 
   const triggerSupplierRestock = (item: MedicationItem) => {
     const orderQty = Math.max(item.minStockLevel * 2, 20);
-    const msg = buildSupplierReorderMessage(item, config.nameEn, orderQty);
+    const msg = buildSupplierReorderMessage(item, config.nameEn, orderQty, lang);
     window.open(msg.waUrl, "_blank");
   };
 

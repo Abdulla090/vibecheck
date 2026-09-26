@@ -157,7 +157,7 @@ export default function WhatsAppMessageModal({
             onClick={() => setTemplate("post-op")}
             className={`px-3 py-1.5 rounded-xl font-semibold transition-all ${
               template === "post-op"
-                ? "bg-purple-500 text-white font-bold"
+                ? "bg-teal-500 text-obsidian-950 font-bold"
                 : "bg-obsidian-850 text-slate-400 hover:text-white"
             }`}
           >

@@ -261,10 +261,22 @@ export default function CrmDashboardPage() {
             leads={leads}
             medications={medications}
             appointments={appointments}
-            onOpenNewLead={() => setActiveTab("pipeline")}
-            onOpenNewAppointment={() => setActiveTab("appointments")}
-            onOpenNewMedication={() => setActiveTab("pharmacy")}
-            onOpenNewPrescription={() => setActiveTab("prescriptions")}
+            onOpenNewLead={() => {
+              setActiveTab("pipeline");
+              setTriggerNewLeadModal(true);
+            }}
+            onOpenNewAppointment={() => {
+              setActiveTab("appointments");
+              setTriggerNewAppointmentModal(true);
+            }}
+            onOpenNewMedication={() => {
+              setActiveTab("pharmacy");
+              setTriggerNewMedicationModal(true);
+            }}
+            onOpenNewPrescription={() => {
+              setActiveTab("prescriptions");
+              setTriggerNewRxModal(true);
+            }}
             onSelectTab={setActiveTab}
           />
         )}
@@ -281,6 +293,8 @@ export default function CrmDashboardPage() {
               setActiveTab("prescriptions");
             }}
             onAddNewLead={handleAddNewLead}
+            triggerAddModal={triggerNewLeadModal}
+            onResetTriggerAddModal={() => setTriggerNewLeadModal(false)}
           />
         )}
 
@@ -293,6 +307,8 @@ export default function CrmDashboardPage() {
             onUpdateStock={handleUpdateStock}
             onAddNewMedication={handleAddNewMedication}
             onDispenseItem={handleDispenseItem}
+            triggerAddModal={triggerNewMedicationModal}
+            onResetTriggerAddModal={() => setTriggerNewMedicationModal(false)}
           />
         )}
 
@@ -304,6 +320,8 @@ export default function CrmDashboardPage() {
             appointments={appointments}
             onUpdateStatus={handleUpdateAppointmentStatus}
             onAddNewAppointment={handleAddNewAppointment}
+            triggerAddModal={triggerNewAppointmentModal}
+            onResetTriggerAddModal={() => setTriggerNewAppointmentModal(false)}
           />
         )}
 
@@ -317,6 +335,8 @@ export default function CrmDashboardPage() {
             medications={medications}
             onAddNewPrescription={handleAddNewPrescription}
             onUpdateRxStatus={handleUpdateRxStatus}
+            triggerAddModal={triggerNewRxModal}
+            onResetTriggerAddModal={() => setTriggerNewRxModal(false)}
           />
         )}
       </main>

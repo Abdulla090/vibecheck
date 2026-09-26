@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Language, ClinicConfig } from "@/types/clinic";
 import { ClinicalAppointment, AppointmentStatus } from "@/types/crm";
 import { buildAppointmentReminderMessage, buildQueueCallMessage } from "@/utils/crmDispatch";
@@ -18,9 +18,9 @@ import {
   Filter, 
   MapPin, 
   Stethoscope, 
-  X,
-  Volume2,
-  CalendarCheck2
+  X, 
+  Volume2, 
+  CalendarCheck2 
 } from "lucide-react";
 
 interface AppointmentSchedulerQueueProps {
@@ -29,6 +29,8 @@ interface AppointmentSchedulerQueueProps {
   appointments: ClinicalAppointment[];
   onUpdateStatus: (aptId: string, newStatus: AppointmentStatus) => void;
   onAddNewAppointment: (newApt: Omit<ClinicalAppointment, "id">) => void;
+  triggerAddModal?: boolean;
+  onResetTriggerAddModal?: () => void;
 }
 
 export default function AppointmentSchedulerQueue({
@@ -37,12 +39,21 @@ export default function AppointmentSchedulerQueue({
   appointments,
   onUpdateStatus,
   onAddNewAppointment,
+  triggerAddModal,
+  onResetTriggerAddModal,
 }: AppointmentSchedulerQueueProps) {
   const isRtl = lang === "ckb";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDoctorFilter, setSelectedDoctorFilter] = useState("all");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<"all" | AppointmentStatus>("all");
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (triggerAddModal) {
+      setIsBookModalOpen(true);
+      onResetTriggerAddModal?.();
+    }
+  }, [triggerAddModal, onResetTriggerAddModal]);
 
   // New Appointment form
   const [patientName, setPatientName] = useState("");

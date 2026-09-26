@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Language, ClinicConfig } from "@/types/clinic";
 import { PatientLead, PipelineStage, VipTier } from "@/types/crm";
 import { normalizeIraqiPhone } from "@/utils/phone";
@@ -22,7 +22,8 @@ import {
   Sparkles,
   ArrowRight,
   MoreVertical,
-  X
+  X,
+  GripVertical
 } from "lucide-react";
 
 interface PatientPipelineKanbanProps {
@@ -33,6 +34,8 @@ interface PatientPipelineKanbanProps {
   onOpenWhatsApp: (lead: PatientLead) => void;
   onOpenInvoice: (lead: PatientLead) => void;
   onAddNewLead: (newLead: Omit<PatientLead, "id" | "dateAdded" | "lastContactDate">) => void;
+  triggerAddModal?: boolean;
+  onResetTriggerAddModal?: () => void;
 }
 
 const STAGES: { id: PipelineStage; titleEn: string; titleCkb: string; color: string; badgeColor: string }[] = [
@@ -68,8 +71,8 @@ const STAGES: { id: PipelineStage; titleEn: string; titleCkb: string; color: str
     id: "follow-up",
     titleEn: "Post-Op Follow-up",
     titleCkb: "بەدواداچوونی چاکبوونەوە",
-    color: "border-purple-500/30 bg-purple-950/20",
-    badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+    color: "border-teal-500/30 bg-teal-950/20",
+    badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
   },
 ];
 
@@ -81,12 +84,23 @@ export default function PatientPipelineKanban({
   onOpenWhatsApp,
   onOpenInvoice,
   onAddNewLead,
+  triggerAddModal,
+  onResetTriggerAddModal,
 }: PatientPipelineKanbanProps) {
   const isRtl = lang === "ckb";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVipTier, setSelectedVipTier] = useState<string>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedLeadDetails, setSelectedLeadDetails] = useState<PatientLead | null>(null);
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [dragOverCol, setDragOverCol] = useState<PipelineStage | null>(null);
+
+  useEffect(() => {
+    if (triggerAddModal) {
+      setIsAddModalOpen(true);
+      onResetTriggerAddModal?.();
+    }
+  }, [triggerAddModal, onResetTriggerAddModal]);
 
   // New Lead Form State
   const [formName, setFormName] = useState("");
@@ -222,7 +236,30 @@ export default function PatientPipelineKanban({
           return (
             <div
               key={col.id}
-              className={`rounded-2xl border p-3 sm:p-3.5 flex flex-col space-y-3 min-h-[500px] ${col.color}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (dragOverCol !== col.id) {
+                  setDragOverCol(col.id);
+                }
+              }}
+              onDragLeave={() => {
+                if (dragOverCol === col.id) {
+                  setDragOverCol(null);
+                }
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const droppedId = e.dataTransfer.getData("text/plain") || draggedLeadId;
+                if (droppedId) {
+                  onUpdateLeadStage(droppedId, col.id);
+                }
+                setDragOverCol(null);
+                setDraggedLeadId(null);
+              }}
+              className={`rounded-2xl border p-3 sm:p-3.5 flex flex-col space-y-3 min-h-[500px] transition-all duration-200 ${col.color} ${
+                dragOverCol === col.id ? "ring-2 ring-emerald-bright/80 bg-emerald-950/40 border-emerald-surgical scale-[1.01]" : ""
+              }`}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
@@ -249,21 +286,36 @@ export default function PatientPipelineKanban({
                   return (
                     <div
                       key={lead.id}
-                      className="hairline-card p-3 rounded-xl bg-obsidian-850/95 border border-white/[0.08] hover:border-emerald-surgical/40 transition-all space-y-2.5 shadow-md"
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", lead.id);
+                        e.dataTransfer.effectAllowed = "move";
+                        setDraggedLeadId(lead.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedLeadId(null);
+                        setDragOverCol(null);
+                      }}
+                      className={`hairline-card p-3 rounded-xl bg-obsidian-850/95 border border-white/[0.08] hover:border-emerald-surgical/40 transition-all space-y-2.5 shadow-md cursor-grab active:cursor-grabbing select-none ${
+                        draggedLeadId === lead.id ? "opacity-35 scale-95 border-dashed border-emerald-surgical" : ""
+                      }`}
                     >
                       {/* Top row: VIP Tier & Value */}
                       <div className="flex items-center justify-between gap-1 text-[10px]">
-                        <span
-                          className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                            lead.vipTier === "Royal Ambassador"
-                              ? "bg-champagne-500/20 text-champagne-400 border border-champagne-500/30"
-                              : lead.vipTier === "Black Diamond VIP"
-                              ? "bg-emerald-500/20 text-emerald-bright border border-emerald-500/30"
-                              : "bg-slate-800 text-slate-300 border border-white/[0.08]"
-                          }`}
-                        >
-                          {lead.vipTier}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <GripVertical className="w-3 h-3 text-slate-500 hover:text-slate-300 shrink-0" />
+                          <span
+                            className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                              lead.vipTier === "Royal Ambassador"
+                                ? "bg-champagne-500/20 text-champagne-400 border border-champagne-500/30"
+                                : lead.vipTier === "Black Diamond VIP"
+                                ? "bg-emerald-500/20 text-emerald-bright border border-emerald-500/30"
+                                : "bg-slate-800 text-slate-300 border border-white/[0.08]"
+                            }`}
+                          >
+                            {lead.vipTier}
+                          </span>
+                        </div>
                         <span className="font-mono font-bold text-champagne-400 text-xs">
                           ${lead.estimatedValueUsd.toLocaleString()}
                         </span>

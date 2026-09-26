@@ -91,3 +91,78 @@
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* Official Medical Clinical Print Stylesheet */
+@media print {
+  /* Hide non-printable app chrome */
+  header,
+  nav,
+  footer,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  .print-modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  .printable-document {
+    position: static !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .printable-document * {
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .printable-document .text-white {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+  }
+
+  .printable-document .text-slate-200,
+  .printable-document .text-slate-300,
+  .printable-document .text-slate-400,
+  .printable-document .text-slate-500 {
+    color: #334155 !important;
+  }
+
+  .printable-document .text-emerald-bright {
+    color: #047857 !important;
+    font-weight: 600 !important;
+  }
+
+  .printable-document .text-champagne-400 {
+    color: #92400e !important;
+    font-weight: 700 !important;
+  }
+
+  .printable-document .bg-obsidian-850,
+  .printable-document .bg-obsidian-900,
+  .printable-document .bg-obsidian-800,
+  .printable-document .bg-obsidian-900\/60,
+  .printable-document .bg-obsidian-900\/80,
+  .printable-document .bg-obsidian-900\/40 {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+}

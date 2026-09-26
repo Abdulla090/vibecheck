@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Language, ClinicConfig } from "@/types/clinic";
 import { MedicationItem, MedicationCategory } from "@/types/crm";
 import { buildSupplierReorderMessage } from "@/utils/crmDispatch";
@@ -34,6 +34,8 @@ interface PharmacyInventoryTrackerProps {
   onUpdateStock: (itemId: string, newStock: number) => void;
   onAddNewMedication: (newItem: Omit<MedicationItem, "id" | "lastRestocked">) => void;
   onDispenseItem: (itemId: string, quantity: number, patientName: string) => void;
+  triggerAddModal?: boolean;
+  onResetTriggerAddModal?: () => void;
 }
 
 const CATEGORIES: { id: "all" | MedicationCategory; labelEn: string; labelCkb: string }[] = [
@@ -52,6 +54,8 @@ export default function PharmacyInventoryTracker({
   onUpdateStock,
   onAddNewMedication,
   onDispenseItem,
+  triggerAddModal,
+  onResetTriggerAddModal,
 }: PharmacyInventoryTrackerProps) {
   const isRtl = lang === "ckb";
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +65,13 @@ export default function PharmacyInventoryTracker({
   const [dispenseModalItem, setDispenseModalItem] = useState<MedicationItem | null>(null);
   const [dispenseQty, setDispenseQty] = useState(1);
   const [dispensePatientName, setDispensePatientName] = useState("");
+
+  useEffect(() => {
+    if (triggerAddModal) {
+      setIsAddModalOpen(true);
+      onResetTriggerAddModal?.();
+    }
+  }, [triggerAddModal, onResetTriggerAddModal]);
 
   // Add Item form state
   const [formBrand, setFormBrand] = useState("");

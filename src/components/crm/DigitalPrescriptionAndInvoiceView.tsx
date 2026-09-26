@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Language, ClinicConfig } from "@/types/clinic";
 import { PrescriptionRecord, PatientLead, MedicationItem } from "@/types/crm";
 import { buildPrescriptionDispatchMessage, buildInvoiceDispatchMessage } from "@/utils/crmDispatch";
@@ -30,6 +30,8 @@ interface DigitalPrescriptionAndInvoiceViewProps {
   medications: MedicationItem[];
   onAddNewPrescription: (newRx: Omit<PrescriptionRecord, "id" | "rxNumber" | "securityHash">) => void;
   onUpdateRxStatus: (rxId: string, status: "dispensed" | "pending") => void;
+  triggerAddModal?: boolean;
+  onResetTriggerAddModal?: () => void;
 }
 
 export default function DigitalPrescriptionAndInvoiceView({
@@ -40,6 +42,8 @@ export default function DigitalPrescriptionAndInvoiceView({
   medications,
   onAddNewPrescription,
   onUpdateRxStatus,
+  triggerAddModal,
+  onResetTriggerAddModal,
 }: DigitalPrescriptionAndInvoiceViewProps) {
   const isRtl = lang === "ckb";
   const [activeSubTab, setActiveSubTab] = useState<"prescriptions" | "invoices">("prescriptions");
@@ -47,6 +51,14 @@ export default function DigitalPrescriptionAndInvoiceView({
   const [selectedRxToPrint, setSelectedRxToPrint] = useState<PrescriptionRecord | null>(null);
   const [selectedLeadForInvoice, setSelectedLeadForInvoice] = useState<PatientLead | null>(null);
   const [isAddRxModalOpen, setIsAddRxModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (triggerAddModal) {
+      setActiveSubTab("prescriptions");
+      setIsAddRxModalOpen(true);
+      onResetTriggerAddModal?.();
+    }
+  }, [triggerAddModal, onResetTriggerAddModal]);
 
   // New Rx Form
   const [patientName, setPatientName] = useState("");
@@ -411,9 +423,9 @@ export default function DigitalPrescriptionAndInvoiceView({
 
       {/* 4. Official Printable Prescription Modal */}
       {selectedRxToPrint && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-obsidian-900 border border-white/[0.15] rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 print-modal-overlay">
+          <div className="bg-obsidian-900 border border-white/[0.15] rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh] printable-document">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 no-print">
               <div className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-champagne-400" />
                 <h3 className="font-extrabold text-sm text-white uppercase tracking-wider">
@@ -525,7 +537,7 @@ export default function DigitalPrescriptionAndInvoiceView({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2 no-print">
               <button
                 type="button"
                 onClick={() => {
@@ -544,9 +556,9 @@ export default function DigitalPrescriptionAndInvoiceView({
 
       {/* 5. Official Printable Invoice Modal */}
       {selectedLeadForInvoice && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-obsidian-900 border border-white/[0.15] rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 print-modal-overlay">
+          <div className="bg-obsidian-900 border border-white/[0.15] rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh] printable-document">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 no-print">
               <div className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-champagne-400" />
                 <h3 className="font-extrabold text-sm text-white uppercase tracking-wider">
